@@ -4,27 +4,43 @@ class Student {
         this.enrolled = enrolled;
     }
 
-    notify(message, callback) {
-        console.log(this.name + " received message : " + message);
+    async notify(message, callback) {
+        return new Promise(resolve => {
+            console.log(this.name + " received message : " + message);
+        });
+        //console.log(this.name + " received message : " + message);
         //something slow might happen here
-        callback();
+        //callback();
     }
 
     // slow step 1 -- verifying that the student is not enrolled --> error, user
-    isEnrolledSlow(delay, callback) {
-        setTimeout( () => {
-            if (this.enrolled)
-                callback("Already enrolled", null);
-            else
-                callback(null, this);
-        }, delay);
+    async isEnrolledSlow(delay) {
+      return new Promise(resolve => {
+          setTimeout( () => {
+              if (this.enrolled)
+                  resolve("Already enrolled");
+              else
+                  resolve(null);
+          }, delay);
+      });
     }
+
+
+    //isEnrolledSlow(delay, callback) {
+    //   setTimeout( () => {
+    //        if (this.enrolled)
+    //            callback("Already enrolled", null);
+    //        else
+    //            callback(null, this);
+    //    }, delay);
+    //}
 }
 
 const students = Array();
 
 students.push(new Student("NameA"), new Student("NameB"),
     new Student("NameC"), new Student("NameD"));
+
 
 //class that defines our data, equipped with a toString method.
 class Course {
@@ -39,19 +55,30 @@ class Course {
 
     //Add type in the TS version
     toString() {
-        return this.name + "Enrolled : " + this.enrolled + "Capacity : " + this.capacity +
-            "Seats : " + this.id + "Instructor : " + this.instructor;
+        return this.name + " Enrolled : " + this.enrolled + " Capacity : " + this.capacity +
+            " Seats : " + this.id + " Instructor : " + this.instructor;
     }
 
     //slow step 2 -- verifying that the class has sufficient space --> errorm course
-    checkSpaceSlow(delay, callback) {
-        setTimeout( () => {
-            if(this.capacity > this.enrolled)
-                callback(null, this);
-            else
-                callback('Class is full', null);
-        }, delay);
+    async checkSpaceSlow(delay) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if(this.capacity > this.enrolled)
+                    resolve(null);
+                else
+                    resolve('Class is full');
+            }, delay);
+        });
     }
+
+    //checkSpaceSlow(delay, callback) {
+    //    setTimeout( () => {
+    //        if(this.capacity > this.enrolled)
+    //            callback(null, this);
+    //        else
+    //            callback('Class is full', null);
+    //    }, delay);
+    //}
 }
 
 const course1 = new Course('CS2114', 100, 105, '0001', 'Esakia', students);
@@ -72,17 +99,28 @@ const course2 = {
     instructor:'Esakia',
     interstedStudents: students,
     toString: function () {
-        return this.name + " Enrolled :" + this.enrolled + "Capacity : " + this.capacity +
-            "ID : " + this.id + "Instructor : " + this.instructor;
+        return this.name + " Enrolled :" + this.enrolled + " Capacity : " + this.capacity +
+            " ID : " + this.id + " Instructor : " + this.instructor;
     },
-    checkSpaceSlow: function(delay, callback) {
-        setTimeout(() => {
-            if (this.capacity > this.enrolled)
-                callback(null, this);
-            else
-                callback('Class is full', null);
-        }, delay);
+    checkSpaceSlow: async function(delay) {
+        return new Promise(resolve => {
+           setTimeout(() => {
+               if (this.capacity > this.enrolled)
+                   resolve(null);
+               else
+                   resolve('Class is full');
+           }, delay);
+        });
     }
+
+    //checkSpaceSlow: function(delay, callback) {
+    //    setTimeout(() => {
+    //        if (this.capacity > this.enrolled)
+    //            callback(null, this);
+    //        else
+    //            callback('Class is full', null);
+    //    }, delay);
+    //}
 }
 
 //This array declaration treats the courses created in a different way equally.
@@ -99,12 +137,21 @@ function resultOfSearch(result) {
     console.log("Search result is : " + result.name);
 }
 
-function slowClassSearch(arrayOfCourses, courseName, callback) {
-    setTimeout( () => {
-        const result = arrayOfCourses.find(course => course.name === courseName);
-        callback(result)
-    },);
+async function slowClassSearch(arrayOfCourses, courseName) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const result = arrayOfCourses.find(course => course.name === courseName);
+            resolve(result);
+        },);
+    });
 }
+
+//function slowClassSearch(arrayOfCourses, courseName, callback) {
+//    setTimeout( () => {
+  //      const result = arrayOfCourses.find(course => course.name === courseName);
+    //    callback(result)
+    //},);
+//}
 
 //A verbose way where the callback function is declared with a name
 slowClassSearch(courses, 'CS2104', resultOfSearch);
@@ -114,17 +161,30 @@ slowClassSearch(courses, 'CS2114', result => {
     console.log("Result inside anonymous function: " + result.name)
 });
 
-function slowAddCourse(course, arrayOfCourses, callback) {
-    setTimeout( () => {
-        //making sure we have a Course and not something else
-        if (course instanceof Course) {
-            arrayOfCourses.push(course);
-            callback(null, arrayOfCourses);
-        }
-        else
-            callback("Error, not a course.", null);
-    }, 1000)
+async function slowAddCourse(course, arrayOfCourses) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            if (course instanceof Course) {
+                arrayOfCourses.push(course);
+                resolve(null, arrayOfCourses);
+            }
+            else
+                resolve("Error, not a course.", null);
+        }, 1000);
+    });
 }
+
+//function slowAddCourse(course, arrayOfCourses, callback) {
+//    setTimeout( () => {
+//        //making sure we have a Course and not something else
+//        if (course instanceof Course) {
+//            arrayOfCourses.push(course);
+//            callback(null, arrayOfCourses);
+//        }
+//        else
+//            callback("Error, not a course.", null);
+//    }, 1000)
+//}
 
 //Param 1 : Instantiating and passing a wrong Class object
 //Param 2 : the array containing courses
@@ -217,7 +277,9 @@ function slowIncrement(delay, course, callback) {
     }, delay);
 }
 
-async function slowAddStudent(student, course)
+async function slowAddStudent(student, course) {
+
+}
 
 //This function contains callback hell.
 function slowAddStudent(delay, student, course, callback) {
